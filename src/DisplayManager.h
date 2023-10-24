@@ -5,7 +5,7 @@
 #include <ArduinoJson.h>
 #include <LittleFS.h>
 #include <vector>
-#include <FastLED_NeoMatrix.h>
+#include <ESP32-HUB75-MatrixPanel-I2S-DMA.h>
 
 class DisplayManager_
 {
@@ -79,6 +79,7 @@ public:
     void sendBMP(Stream &stream);
     CRGB getPixelColor(int16_t x, int16_t y);
     CRGB *getLeds();
+    uint16_t XY(uint16_t x, uint16_t y);
     void forceNextApp();
     String getEffectNames();
     String getTransistionNames();

@@ -34,7 +34,7 @@
 GifPlayer gif1;
 GifPlayer gif2;
 
-MatrixDisplayUi::MatrixDisplayUi(FastLED_NeoMatrix *matrix)
+MatrixDisplayUi::MatrixDisplayUi(MatrixPanel_I2S_DMA *matrix)
 {
   this->matrix = matrix;
 }
@@ -234,7 +234,7 @@ void MatrixDisplayUi::tick()
     }
   }
 
-  this->matrix->clear();
+  DisplayManager.clearMatrix();
 
   if (BackgroundEffect > -1)
   {
@@ -246,7 +246,7 @@ void MatrixDisplayUi::tick()
   this->drawOverlays();
   this->drawIndicators();
   DisplayManager.gammaCorrection();
-  this->matrix->show();
+  // FastLED.show();
 }
 
 void MatrixDisplayUi::drawIndicators()
@@ -567,7 +567,7 @@ void MatrixDisplayUi::fadeTransition()
   {
     fadeValue = pow((1.0 - progress) * 2, 2) * 255; // Fading in the new app (progress from 0.5 to 1.0)
   }
-  this->matrix->clear(); // Clear the matrix
+  DisplayManager.clearMatrix();
   // If fading out the old app
   if (progress < 0.5)
   {
@@ -583,9 +583,9 @@ void MatrixDisplayUi::fadeTransition()
   {
     for (int j = 0; j < 8; j++)
     {
-      CRGB color = DisplayManager.getLeds()[this->matrix->XY(i, j)];
+      CRGB color = DisplayManager.getLeds()[DisplayManager.XY(i, j)];
       color.fadeToBlackBy(fadeValue);
-      DisplayManager.getLeds()[this->matrix->XY(i, j)] = color;
+      DisplayManager.getLeds()[DisplayManager.XY(i, j)] = color;
     }
   }
 }
@@ -633,7 +633,7 @@ void MatrixDisplayUi::curtainTransition()
         {
             for (int j = 0; j < 8; j++)
             {
-                ledsCopy[i + j * 32] = leds[this->matrix->XY(i, j)];
+                ledsCopy[i + j * 32] = DisplayManager.XY(i, j);
             }
         }
     }
@@ -647,7 +647,7 @@ void MatrixDisplayUi::curtainTransition()
         {
             if ((i < (16 - curtainWidth)) || (i >= (16 + curtainWidth)))
             {
-                leds[this->matrix->XY(i, j)] = ledsCopy[i + j * 32];
+                leds[DisplayManager.XY(i, j)] = ledsCopy[i + j * 32];
             }
         }
     }
@@ -675,7 +675,7 @@ void MatrixDisplayUi::zoomTransition()
   {
     for (int j = 0; j < 8; j++)
     {
-      ledsCopy[i + j * 32] = DisplayManager.getLeds()[this->matrix->XY(i, j)];
+      ledsCopy[i + j * 32] = DisplayManager.getLeds()[DisplayManager.XY(i, j)];
     }
   }
 
@@ -695,7 +695,7 @@ void MatrixDisplayUi::zoomTransition()
         jScaled = 0;
       if (jScaled >= 8)
         jScaled = 7;
-      DisplayManager.getLeds()[this->matrix->XY(i, j)] = ledsCopy[iScaled + jScaled * 32];
+      DisplayManager.getLeds()[DisplayManager.XY(i, j)] = ledsCopy[iScaled + jScaled * 32];
     }
   }
 }
@@ -722,7 +722,7 @@ void MatrixDisplayUi::rotateTransition()
   {
     for (int j = 0; j < 8; j++)
     {
-      ledsCopy[i + j * 32] = DisplayManager.getLeds()[this->matrix->XY(i, j)];
+      ledsCopy[i + j * 32] = DisplayManager.getLeds()[DisplayManager.XY(i, j)];
     }
   }
 
@@ -744,7 +744,7 @@ void MatrixDisplayUi::rotateTransition()
       if (jRotated >= 8)
         jRotated = 7;
 
-      DisplayManager.getLeds()[this->matrix->XY(i, j)] = ledsCopy[iRotated + jRotated * 32];
+      DisplayManager.getLeds()[DisplayManager.XY(i, j)] = ledsCopy[iRotated + jRotated * 32];
     }
   }
 }
@@ -759,12 +759,12 @@ void MatrixDisplayUi::pixelateTransition()
   {
     for (int j = 0; j < 8; j++)
     {
-      ledsCopy[i + j * 32] = DisplayManager.getLeds()[this->matrix->XY(i, j)];
+      ledsCopy[i + j * 32] = DisplayManager.getLeds()[DisplayManager.XY(i, j)];
     }
   }
 
   // Clear the screen and draw the new app
-  this->matrix->clear();
+DisplayManager.clearMatrix();
   (this->AppFunctions[this->getnextAppNumber()])(this->matrix, &this->state, 0, 0, &gif2);
 
   // Apply the random pixel swap transition effect
@@ -775,7 +775,7 @@ void MatrixDisplayUi::pixelateTransition()
       // If the random number is greater than the progress, display the pixel from the old app
       if (random(255) > progress * 255)
       {
-        DisplayManager.getLeds()[this->matrix->XY(i, j)] = ledsCopy[i + j * 32];
+        DisplayManager.getLeds()[DisplayManager.XY(i, j)] = ledsCopy[i + j * 32];
       }
       // Otherwise, keep the pixel from the new app
     }
@@ -792,12 +792,12 @@ void MatrixDisplayUi::rippleTransition()
   {
     for (int j = 0; j < 8; j++)
     {
-      ledsCopy[i + j * 32] = DisplayManager.getLeds()[this->matrix->XY(i, j)];
+      ledsCopy[i + j * 32] = DisplayManager.getLeds()[DisplayManager.XY(i, j)];
     }
   }
 
   // Clear the screen and draw the new app
-  this->matrix->clear();
+ DisplayManager.clearMatrix();
   (this->AppFunctions[this->getnextAppNumber()])(this->matrix, &this->state, 0, 0, &gif2);
 
   // Apply the checkerboard transition effect
@@ -808,12 +808,12 @@ void MatrixDisplayUi::rippleTransition()
       // If the sum of i and j is an even number and the progress is less than 0.5, display the pixel from the old app
       if ((i + j) % 2 == 0 && progress < 0.5)
       {
-        DisplayManager.getLeds()[this->matrix->XY(i, j)] = ledsCopy[i + j * 32];
+        DisplayManager.getLeds()[DisplayManager.XY(i, j)] = ledsCopy[i + j * 32];
       }
       // If the sum of i and j is an odd number and the progress is more than 0.5, display the pixel from the old app
       else if ((i + j) % 2 != 0 && progress >= 0.5)
       {
-        DisplayManager.getLeds()[this->matrix->XY(i, j)] = ledsCopy[i + j * 32];
+        DisplayManager.getLeds()[DisplayManager.XY(i, j)] = ledsCopy[i + j * 32];
       }
       // Otherwise, keep the pixel from the new app
     }
@@ -846,7 +846,7 @@ void MatrixDisplayUi::blinkTransition()
   else
   {
     // If blinkState is false, clear the matrix (display off)
-    this->matrix->clear();
+    DisplayManager.clearMatrix();
   }
 }
 
@@ -870,7 +870,7 @@ void MatrixDisplayUi::reloadTransition()
       for (int j = 0; j < 8; j++)
       {
         // Turning the pixels off to create a fly out effect
-        DisplayManager.getLeds()[this->matrix->XY(i, j)] = CRGB::Black;
+        DisplayManager.getLeds()[DisplayManager.XY(i, j)] = CRGB::Black;
       }
     }
   }
@@ -889,7 +889,7 @@ void MatrixDisplayUi::reloadTransition()
       for (int j = 0; j < 8; j++)
       {
         // Turning the pixels off to create a fly in effect
-        DisplayManager.getLeds()[this->matrix->XY(i, j)] = CRGB::Black;
+        DisplayManager.getLeds()[DisplayManager.XY(i, j)] = CRGB::Black;
       }
     }
   }
@@ -907,12 +907,12 @@ void MatrixDisplayUi::crossfadeTransition()
   {
     for (int j = 0; j < 8; j++)
     {
-      ledsCopy[i + j * 32] = DisplayManager.getLeds()[this->matrix->XY(i, j)];
+      ledsCopy[i + j * 32] = DisplayManager.getLeds()[DisplayManager.XY(i, j)];
     }
   }
 
   // Clear the matrix before drawing the new app
-  this->matrix->fillScreen(0);
+  this->matrix->fillScreenRGB888(0, 0, 0);
 
   // Draw the new app
   (this->AppFunctions[this->getnextAppNumber()])(this->matrix, &this->state, 0, 0, &gif2);
@@ -923,8 +923,8 @@ void MatrixDisplayUi::crossfadeTransition()
     for (int j = 0; j < 8; j++)
     {
       CRGB pixelOld = ledsCopy[i + j * 32];
-      CRGB pixelNew = DisplayManager.getLeds()[this->matrix->XY(i, j)];
-      DisplayManager.getLeds()[this->matrix->XY(i, j)] = pixelOld.lerp8(pixelNew, progress * 255);
+      CRGB pixelNew = DisplayManager.getLeds()[DisplayManager.XY(i, j)];
+      DisplayManager.getLeds()[DisplayManager.XY(i, j)] = pixelOld.lerp8(pixelNew, progress * 255);
     }
   }
 }

@@ -29,7 +29,7 @@
 #define MatrixDisplayUi_h
 
 #include <Arduino.h>
-#include "FastLED_NeoMatrix.h"
+#include <ESP32-HUB75-MatrixPanel-I2S-DMA.h>
 #include "GifPlayer.h"
 #include "DisplayManager.h"
 
@@ -82,14 +82,14 @@ struct MatrixDisplayUiState
   void *userData = NULL;
 };
 
-typedef void (*AppCallback)(FastLED_NeoMatrix *matrix, MatrixDisplayUiState *state, int16_t x, int16_t y, GifPlayer *gifPlayer);
-typedef void (*OverlayCallback)(FastLED_NeoMatrix *matrix, MatrixDisplayUiState *state, GifPlayer *gifPlayer);
-typedef void (*BackgroundCallback)(FastLED_NeoMatrix *matrix);
+typedef void (*AppCallback)(MatrixPanel_I2S_DMA *matrix, MatrixDisplayUiState *state, int16_t x, int16_t y, GifPlayer *gifPlayer);
+typedef void (*OverlayCallback)(MatrixPanel_I2S_DMA *matrix, MatrixDisplayUiState *state, GifPlayer *gifPlayer);
+typedef void (*BackgroundCallback)(MatrixPanel_I2S_DMA *matrix);
 
 class MatrixDisplayUi
 {
 private:
-  FastLED_NeoMatrix *matrix;
+  MatrixPanel_I2S_DMA *matrix;
   CRGB ledsCopy[256];
   // Values for the Apps
   AnimationDirection appAnimationDirection = SLIDE_DOWN;
@@ -134,7 +134,7 @@ private:
   void crossfadeTransition();
 
 public:
-  MatrixDisplayUi(FastLED_NeoMatrix *matrix);
+  MatrixDisplayUi(MatrixPanel_I2S_DMA *matrix);
   uint32_t fadeColor(uint32_t color, uint32_t interval);
   uint8_t AppCount = 0;
   /**

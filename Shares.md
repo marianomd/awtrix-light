@@ -11,8 +11,8 @@ https://github.com/evert-arias/EasyButton/blob/main/LICENSE
 https://github.com/FastLED/FastLED  
 https://github.com/FastLED/FastLED/blob/master/LICENSE  
 **FastLED NeoMatrix**  
-https://github.com/marcmerlin/FastLED_NeoMatrix  
-https://github.com/marcmerlin/FastLED_NeoMatrix/blob/master/COPYING  
+https://github.com/marcmerlin/Adafruit_GFX  
+https://github.com/marcmerlin/Adafruit_GFX/blob/master/COPYING  
 **pubsubclient**  
 https://github.com/knolleary/pubsubclient  
 https://github.com/knolleary/pubsubclient/blob/master/LICENSE.txt   

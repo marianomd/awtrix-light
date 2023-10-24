@@ -74,9 +74,9 @@ MelodyPlayer player(BUZZER_PIN, 1, LOW);
 #define PHOTOCELL_SERIES_RESISTOR 10000
 #endif
 
-EasyButton button_left(BUTTON_UP_PIN);
-EasyButton button_right(BUTTON_DOWN_PIN);
-EasyButton button_select(BUTTON_SELECT_PIN);
+// EasyButton button_left(BUTTON_UP_PIN);
+// EasyButton button_right(BUTTON_DOWN_PIN);
+// EasyButton button_select(BUTTON_SELECT_PIN);
 
 LightDependentResistor photocell(LDR_PIN,
                                  PHOTOCELL_SERIES_RESISTOR,
@@ -356,25 +356,25 @@ void PeripheryManager_::setup()
     }
 
 #endif
-    button_left.begin();
-    button_right.begin();
-    button_select.begin();
+    // button_left.begin();
+    // button_right.begin();
+    // button_select.begin();
 
-    if (ROTATE_SCREEN)
-    {
-        Serial.println("Button rotation");
-        button_left.onPressed(right_button_pressed);
-        button_right.onPressed(left_button_pressed);
-    }
-    else
-    {
-        button_left.onPressed(left_button_pressed);
-        button_right.onPressed(right_button_pressed);
-    }
+    // if (ROTATE_SCREEN)
+    // {
+    //     Serial.println("Button rotation");
+    //     button_left.onPressed(right_button_pressed);
+    //     button_right.onPressed(left_button_pressed);
+    // }
+    // else
+    // {
+    //     button_left.onPressed(left_button_pressed);
+    //     button_right.onPressed(right_button_pressed);
+    // }
 
-    button_select.onPressed(select_button_pressed);
-    button_select.onPressedFor(1000, select_button_pressed_long);
-    button_select.onSequence(2, 300, select_button_double);
+    // button_select.onPressed(select_button_pressed);
+    // button_select.onPressedFor(1000, select_button_pressed_long);
+    // button_select.onSequence(2, 300, select_button_double);
 
     Wire.begin(I2C_SDA_PIN, I2C_SCL_PIN);
 #ifdef awtrix2_upgrade
@@ -406,18 +406,18 @@ void PeripheryManager_::setup()
 
 void PeripheryManager_::tick()
 {
-    if (ROTATE_SCREEN)
-    {
-        MQTTManager.sendButton(2, button_left.read());
-        MQTTManager.sendButton(0, button_right.read());
-    }
-    else
-    {
-        MQTTManager.sendButton(0, button_left.read());
-        MQTTManager.sendButton(2, button_right.read());
-    }
+    // if (ROTATE_SCREEN)
+    // {
+    //     MQTTManager.sendButton(2, button_left.read());
+    //     MQTTManager.sendButton(0, button_right.read());
+    // }
+    // else
+    // {
+    //     MQTTManager.sendButton(0, button_left.read());
+    //     MQTTManager.sendButton(2, button_right.read());
+    // }
 
-    MQTTManager.sendButton(1, button_select.read());
+    // MQTTManager.sendButton(1, button_select.read());
     unsigned long currentMillis_BatTempHum = millis();
     if (currentMillis_BatTempHum - previousMillis_BatTempHum >= interval_BatTempHum)
     {

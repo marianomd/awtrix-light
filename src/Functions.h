@@ -2,7 +2,7 @@
 #define FUNCTIONS_H
 
 #include <map>
-#include <FastLED_NeoMatrix.h>
+#include <ESP32-HUB75-MatrixPanel-I2S-DMA.h>
 #include <Globals.h>
 #include <ArduinoJson.h>
 

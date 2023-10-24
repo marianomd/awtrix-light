@@ -36,8 +36,37 @@ int previousDataLength = 0;
 #define MATRIX_PIN 32
 #endif
 
-#define MATRIX_WIDTH 32
-#define MATRIX_HEIGHT 8
+// #define MATRIX_WIDTH 32
+// #define MATRIX_HEIGHT 8
+
+// for ESP32-HUB75-MatrixPanel-I2S-DMA
+#define PANEL_WIDTH 64 
+#define PANEL_HEIGHT 64
+
+#define R1_PIN 25
+#define G1_PIN 26
+#define B1_PIN 27
+#define R2_PIN 14
+#define G2_PIN 12
+#define B2_PIN 13
+#define A_PIN 23
+#define B_PIN 19
+#define C_PIN 5
+#define D_PIN 17
+#define E_PIN 18
+#define LAT_PIN 4
+#define OE_PIN 15
+#define CLK_PIN 16
+
+
+HUB75_I2S_CFG::i2s_pins _pins={R1_PIN, G1_PIN, B1_PIN, R2_PIN, G2_PIN, B2_PIN, A_PIN, B_PIN, C_PIN, D_PIN, E_PIN, LAT_PIN, OE_PIN, CLK_PIN};
+HUB75_I2S_CFG mxconfig(
+	PANEL_WIDTH, // Module width
+	PANEL_HEIGHT, // Module height
+	1, // chain length
+	_pins // pin mapping
+);
+
 fs::File gifFile;
 GifPlayer gif;
 
@@ -49,7 +78,7 @@ int16_t cursor_x, cursor_y;
 uint32_t textColor;
 
 // NeoMatrix
-FastLED_NeoMatrix *matrix = new FastLED_NeoMatrix(leds, 8, 8, 4, 1, NEO_MATRIX_TOP + NEO_MATRIX_LEFT + NEO_MATRIX_ROWS + NEO_MATRIX_PROGRESSIVE);
+MatrixPanel_I2S_DMA *matrix = new MatrixPanel_I2S_DMA(mxconfig);
 MatrixDisplayUi *ui = new MatrixDisplayUi(matrix);
 
 DisplayManager_ &DisplayManager_::getInstance()
@@ -127,8 +156,7 @@ void DisplayManager_::resetTextColor()
 
 void DisplayManager_::clearMatrix()
 {
-  matrix->clear();
-  matrix->show();
+  matrix->fillScreenRGB888(0, 0, 0);
 }
 
 bool jpg_output(int16_t x, int16_t y, uint16_t w, uint16_t h, uint16_t *bitmap)
@@ -180,7 +208,7 @@ void DisplayManager_::printText(int16_t x, int16_t y, const char *text, bool cen
 void DisplayManager_::HSVtext(int16_t x, int16_t y, const char *text, bool clear, byte textCase)
 {
   if (clear)
-    matrix->clear();
+    clearMatrix();
   static uint8_t hueOffset = 0;
   uint16_t xpos = 0;
   for (uint16_t i = 0; i < strlen(text); i++)
@@ -203,8 +231,8 @@ void DisplayManager_::HSVtext(int16_t x, int16_t y, const char *text, bool clear
     xpos += getTextWidth(temp_str, textCase);
   }
   hueOffset++;
-  if (clear)
-    matrix->show();
+  // if (clear)
+  //   FastLED.show();
 }
 
 uint32_t interpolateColor(uint32_t color1, uint32_t color2, float t)
@@ -233,7 +261,7 @@ uint32_t interpolateColor(uint32_t color1, uint32_t color2, float t)
 void DisplayManager_::GradientText(int16_t x, int16_t y, const char *text, int color1, int color2, bool clear, byte textCase)
 {
   if (clear)
-    matrix->clear();
+    clearMatrix();
 
   uint16_t xpos = 0;
   uint16_t textLength = strlen(text);
@@ -262,8 +290,8 @@ void DisplayManager_::GradientText(int16_t x, int16_t y, const char *text, int c
     xpos += getTextWidth(temp_str, textCase);
   }
 
-  if (clear)
-    matrix->show();
+  // if (clear)
+  //   FastLED.show();
 }
 
 void pushCustomApp(String name, int position)
@@ -1039,18 +1067,18 @@ void DisplayManager_::setup()
   TJpgDec.setCallback(jpg_output);
   TJpgDec.setJpgScale(1);
   random16_set_seed(millis());
-  FastLED.addLeds<NEOPIXEL, MATRIX_PIN>(leds, MATRIX_WIDTH * MATRIX_HEIGHT);
+  //FastLED.addLeds<NEOPIXEL, MATRIX_PIN>(leds, MATRIX_WIDTH * MATRIX_HEIGHT);
   setMatrixLayout(MATRIX_LAYOUT);
   matrix->setRotation(ROTATE_SCREEN ? 90 : 0);
   GAMMA = 1.9;
-  if (COLOR_CORRECTION)
-  {
-    FastLED.setCorrection(COLOR_CORRECTION);
-  }
-  if (COLOR_TEMPERATURE)
-  {
-    FastLED.setTemperature(COLOR_TEMPERATURE);
-  }
+  // if (COLOR_CORRECTION)
+  // {
+  //   FastLED.setCorrection(COLOR_CORRECTION);
+  // }
+  // if (COLOR_TEMPERATURE)
+  // {
+  //   FastLED.setTemperature(COLOR_TEMPERATURE);
+  // }
   gif.setMatrix(matrix);
   ui->setAppAnimation(SLIDE_DOWN);
 
@@ -1183,7 +1211,7 @@ void onDmxFrame(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t *d
   if (universe == 10)
   {
     matrix->setBrightness(data[0]);
-    matrix->show();
+    // FastLED.show();
   }
 
   // Store which universe has got in
@@ -1205,13 +1233,13 @@ void onDmxFrame(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t *d
   {
     int led = i + (universe - startUniverse) * (previousDataLength / 3);
     if (led < 256)
-      matrix->drawPixel(led % matrix->width(), led / matrix->width(), matrix->Color(data[i * 3], data[i * 3 + 1], data[i * 3 + 2]));
+      matrix->drawPixel(led % matrix->width(), led / matrix->width(), CRGB(data[i * 3], data[i * 3 + 1], data[i * 3 + 2]));
   }
   previousDataLength = length;
 
   if (sendFrame)
   {
-    matrix->show();
+    // FastLED.show();
     // Reset universeReceived to 0
     memset(universesReceived, 0, maxUniverses);
   }
@@ -1225,12 +1253,12 @@ void DisplayManager_::startArtnet()
 
 void DisplayManager_::clear()
 {
-  matrix->clear();
+  clearMatrix();
 }
 
 void DisplayManager_::show()
 {
-  matrix->show();
+  //FastLED.show();
 }
 
 void DisplayManager_::leftButton()
@@ -1558,26 +1586,7 @@ void DisplayManager_::setAppTime(long duration)
 
 void DisplayManager_::setMatrixLayout(int layout)
 {
-  delete matrix; // Free memory from the current matrix object
-  if (DEBUG_MODE)
-    DEBUG_PRINTF("Set matrix layout to %i", layout);
-  switch (layout)
-  {
-  case 0:
-    matrix = new FastLED_NeoMatrix(leds, 32, 8, NEO_MATRIX_TOP + NEO_MATRIX_LEFT + NEO_MATRIX_ROWS + NEO_MATRIX_ZIGZAG);
-    break;
-  case 1:
-    matrix = new FastLED_NeoMatrix(leds, 8, 8, 4, 1, NEO_MATRIX_TOP + NEO_MATRIX_LEFT + NEO_MATRIX_ROWS + NEO_MATRIX_PROGRESSIVE);
-    break;
-  case 2:
-    matrix = new FastLED_NeoMatrix(leds, 32, 8, NEO_MATRIX_TOP + NEO_MATRIX_LEFT + NEO_MATRIX_COLUMNS + NEO_MATRIX_ZIGZAG);
-    break;
-  default:
-    break;
-  }
 
-  delete ui;                        // Free memory from the current ui object
-  ui = new MatrixDisplayUi(matrix); // Create a new ui object with the new matrix
 }
 
 String DisplayManager_::getAppsAsJson()
@@ -1982,10 +1991,10 @@ void DisplayManager_::setNewSettings(const char *json)
       COLOR_CORRECTION.setRGB(r, g, b);
     }
 
-    if (COLOR_CORRECTION)
-    {
-      FastLED.setCorrection(COLOR_CORRECTION);
-    }
+    // if (COLOR_CORRECTION)
+    // {
+    //   FastLED.setCorrection(COLOR_CORRECTION);
+    // }
   }
   if (doc.containsKey("CTEMP"))
   {
@@ -2007,10 +2016,10 @@ void DisplayManager_::setNewSettings(const char *json)
       COLOR_TEMPERATURE.setRGB(r, g, b);
     }
 
-    if (COLOR_TEMPERATURE)
-    {
-      FastLED.setTemperature(COLOR_TEMPERATURE);
-    }
+    // if (COLOR_TEMPERATURE)
+    // {
+    //   FastLED.setTemperature(COLOR_TEMPERATURE);
+    // }
   }
   if (doc.containsKey("WDCA"))
   {
@@ -2097,7 +2106,7 @@ String DisplayManager_::ledsAsJson()
   {
     for (int x = 0; x < MATRIX_WIDTH; x++)
     {
-      int index = matrix->XY(x, y);
+      int index = DisplayManager.XY(x, y);
       int color = (ledsCopy[index].r << 16) | (ledsCopy[index].g << 8) | ledsCopy[index].b;
       jsonColors.add(color);
     }
@@ -2129,7 +2138,7 @@ String DisplayManager_::getAppsWithIcon()
 
 CRGB DisplayManager_::getPixelColor(int16_t x, int16_t y)
 {
-  int index = matrix->XY(x, y);
+  int index = DisplayManager.XY(x, y);
   return leds[index];
 }
 
@@ -2321,7 +2330,7 @@ bool DisplayManager_::moodlight(const char *json)
 
   MOODLIGHT_MODE = true;
   doc.clear();
-  matrix->show();
+  // FastLED.show();
   return true;
 }
 
@@ -2329,6 +2338,15 @@ CRGB *DisplayManager_::getLeds()
 {
   return leds;
 }
+
+uint16_t DisplayManager_::XY( uint16_t x, uint16_t y)
+{
+    if( x >= MATRIX_WIDTH) return 0;
+    if( y >= MATRIX_HEIGHT) return 0;
+
+    return (y * MATRIX_WIDTH) + x + 1; // everything offset by one to compute out of bounds stuff - never displayed by ShowFrame()
+}
+
 
 String DisplayManager_::getEffectNames()
 {

@@ -23,7 +23,7 @@ private:
 #define GIFHDRTAGNORM "GIF87a"
 #define GIFHDRTAGNORM1 "GIF89a"
 #define GIFHDRSIZE 6
-  FastLED_NeoMatrix *mtx;
+  MatrixPanel_I2S_DMA *mtx;
 #define COLORTBLFLAG 0x80
 #define INTERLACEFLAG 0x40
 #define TRANSPARENTFLAG 0x01
@@ -528,7 +528,7 @@ public:
   }
 
 public:
-  void setMatrix(FastLED_NeoMatrix *matrix)
+  void setMatrix(MatrixPanel_I2S_DMA *matrix)
   {
     mtx = matrix;
   }

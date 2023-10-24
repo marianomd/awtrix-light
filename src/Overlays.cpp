@@ -48,7 +48,7 @@ uint32_t TextEffect(uint32_t color, uint32_t fade, uint32_t blink)
     }
 }
 
-void StatusOverlay(FastLED_NeoMatrix *matrix, MatrixDisplayUiState *state, GifPlayer *gifPlayer)
+void StatusOverlay(MatrixPanel_I2S_DMA *matrix, MatrixDisplayUiState *state, GifPlayer *gifPlayer)
 {
     if (!WiFi.isConnected())
     {
@@ -60,16 +60,16 @@ void StatusOverlay(FastLED_NeoMatrix *matrix, MatrixDisplayUiState *state, GifPl
     }
 }
 
-void MenuOverlay(FastLED_NeoMatrix *matrix, MatrixDisplayUiState *state, GifPlayer *gifPlayer)
+void MenuOverlay(MatrixPanel_I2S_DMA *matrix, MatrixDisplayUiState *state, GifPlayer *gifPlayer)
 {
     if (!MenuManager.inMenu)
         return;
-    matrix->fillScreen(0);
+    matrix->fillScreenRGB888(0, 0, 0);
     DisplayManager.setTextColor(0xFFFFFF);
     DisplayManager.printText(0, 6, utf8ascii(MenuManager.menutext()).c_str(), true, 2);
 }
 
-void NotifyOverlay(FastLED_NeoMatrix *matrix, MatrixDisplayUiState *state, GifPlayer *gifPlayer)
+void NotifyOverlay(MatrixPanel_I2S_DMA *matrix, MatrixDisplayUiState *state, GifPlayer *gifPlayer)
 {
     // Check if notification flag is set
     if (notifications.empty())
